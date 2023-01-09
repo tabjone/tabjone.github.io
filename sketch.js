@@ -60,19 +60,21 @@ function draw()
 
     if (mouseDistanceR < bigBody.radius && bigBody.radius <= maxRadius)
     {
+        
         bigBody.radius = bigBody.radius + growFactor;
-        smallBody.angularVelocity = smallBody.angularVelocity + 1;
     }
     if (mouseDistanceR > bigBody.radius && bigBody.radius >= minRaidus)
     {
         bigBody.radius = bigBody.radius - growFactor;
     }
-
+    
+    if (abs(bigBody.radius - maxRadius) < 3){
+        smallBody.updateRotation(dt, -0.005, bigBody);
+        }
+  else{smallBody.updateRotation(dt, 0, bigBody);}
+  
     smallBody.updatePosition(bigBody, dt);
-    smallBody.updateRotation(dt, 0);
-
+    
     bigBody.draw(true);
     smallBody.draw(false);
-    
-
 }

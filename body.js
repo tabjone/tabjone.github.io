@@ -7,7 +7,8 @@ class Body {
 
     this.radius = diameter/2;
 
-    this.angularVelocity = 5;
+    this.angularVelocity = 0;
+    this.rotationAngle = 0;
   }
   updatePosition(other_body, dt)
   {
@@ -30,47 +31,54 @@ class Body {
     this.position.y = this.position.y + this.velocity.y * dt;
   }
 
-  updateRotation(dt, angularAddon){
-    if (this.angularVelocity <= this.velocity.mag() / this.radius){
+  updateRotation(dt, angularAddon, other_body){
+    let distance = sqrt(pow(this.position.x - other_body.position.x,2) + pow(this.position.y - other_body.position.y, 2));
+    
+    if (abs(this.angularVelocity) <= this.velocity.mag() / distance){
       this.angularVelocity = this.angularVelocity + angularAddon;
     }
     this.rotationAngle = this.rotationAngle + this.angularVelocity * dt;
-    
+  }
+
+
+  globalCoordinates(localCoordinates){
+    let pos = new createVector(localCoordinates.x + this.position.x, localCoordinates.y + this.position.y);
+    return pos
   }
 
 
   draw(mainBody)
   {
+    let localCircleCentre = new createVector(0, 0);
+    let globalCircleCentre = this.globalCoordinates(localCircleCentre);
+
+
     noFill();
     stroke(255);
     strokeWeight(3);
-    circle(this.position.x, this.position.y, 2*this.radius);
+    circle(globalCircleCentre.x, globalCircleCentre.y, 2*this.radius);
 
     let d = this.radius;
     let theta = this.rotationAngle;
-    
-
-    let x1 = -d;
-    let x2 = d;
-    let y1 = 0;
-    let y2 = 0;
 
     let c = cos(theta);
     let s = sin(theta);
-
-    let x1_new = (x1 * c - y1 * s) + this.position.x;
-    let y1_new = (x1 * s + y1 * c) + this.position.y;
-
-    let x2_new = (x2 * c - y2 * s) + this.position.x;
-    let y2_new = (x2 * s + y2 * c) + this.position.y;
-  
     
+    
+    let left = new createVector(-d*c, d*s);
+    let right = new createVector(d*c, d*s);
+    let bottom = new createVector(d*s, -d*c);
+    let top = new createVector(-d*s, d*c);
+
+
+    let leftGlobal = this.globalCoordinates(left);
+    let rightGlobal = this.globalCoordinates(right);
+    let bottomGlobal = this.globalCoordinates(bottom);
+    let topGlobal = this.globalCoordinates(top);
+  
     if (!mainBody){
-      strokeWeight(3);
-      //line(x1, y1, x2, y2);
-      line(x1_new, y1_new, x2_new, y2_new);
-
-
+    strokeWeight(3);
+    line(bottomGlobal.x, bottomGlobal.y, topGlobal.x, topGlobal.y);    
     }
   }
 }
